@@ -2,6 +2,8 @@
 
 ## Run the application
 
+Be located at the root of the ams_backend project
+
 1. Run the command ```docker-compose build```
 2. Run the command ```docker-compose up```
    
