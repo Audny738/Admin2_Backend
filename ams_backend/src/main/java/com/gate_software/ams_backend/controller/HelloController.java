@@ -1,4 +1,4 @@
-package com.gate_software.ams_backend.controllers;
+package com.gate_software.ams_backend.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
