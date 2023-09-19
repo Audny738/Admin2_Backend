@@ -1,0 +1,20 @@
+version: '3.1'
+
+services:
+  ams_db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: ams_backend
+    ports:
+      - "3306:3306"
+
+  ams_backend_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - ams_db
