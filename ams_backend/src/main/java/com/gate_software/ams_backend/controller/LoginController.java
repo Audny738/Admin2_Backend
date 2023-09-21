@@ -1,6 +1,8 @@
 package com.gate_software.ams_backend.controller;
 
 import com.gate_software.ams_backend.service.LoginService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +19,10 @@ public class LoginController {
     private LoginService loginService;
 
     @PostMapping
-    public Map<String, Object> login(@RequestBody Map<String, String> loginRequest) {
-        String email = loginRequest.get("email");
-        String password = loginRequest.get("password");
+    @Operation(summary = "Authenticate user", description = "Authenticate a user based on email and password.")
+    public Map<String, Object> login(
+            @Parameter(description = "User's email") @RequestParam String email,
+            @Parameter(description = "User's password") @RequestParam String password) {
 
         boolean isAuthenticated = loginService.authenticate(email, password);
 

@@ -12,10 +12,10 @@ public class ControlledUser {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
-    @Column(length = 30)
+    @Column
     private String email;
 
-    @Column(length = 30)
+    @Column
     private String password;
 
     public ControlledUser(String email, String password) {

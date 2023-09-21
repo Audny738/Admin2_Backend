@@ -13,10 +13,10 @@ public class AdministrativeUser {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
-    @Column(length = 30)
+    @Column
     private String email;
 
-    @Column(length = 30)
+    @Column
     private String password;
 
     public AdministrativeUser(String email, String password) {
