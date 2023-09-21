@@ -12,4 +12,16 @@ public class ControlledUser {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
+
+    @Column
+    private String email;
+
+    @Column
+    private String password;
+
+    public ControlledUser(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
+
 }
