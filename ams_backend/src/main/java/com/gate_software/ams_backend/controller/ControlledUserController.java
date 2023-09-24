@@ -2,6 +2,7 @@ package com.gate_software.ams_backend.controller;
 
 import com.gate_software.ams_backend.entity.AdministrativeUser;
 import com.gate_software.ams_backend.entity.ControlledUser;
+import com.gate_software.ams_backend.entity.Schedule;
 import com.gate_software.ams_backend.repository.AdministrativeUserRepository;
 import com.gate_software.ams_backend.repository.ControlledUserRepository;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,7 +35,7 @@ public class ControlledUserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @PostMapping("")
+    @PostMapping("/")
     @Operation(summary = "Create a Controlled User", description = "Create a new controlled user.")
     public ResponseEntity<?> createUser(@RequestBody ControlledUser user) {
         String newEmail = user.getEmail();
@@ -54,7 +55,7 @@ public class ControlledUserController {
         return ResponseEntity.ok(savedUser);
     }
 
-    @GetMapping("")
+    @GetMapping("/")
     @Operation(summary = "Get All Controlled Users", description = "Get a list of all controlled users.")
     public ResponseEntity<List<ControlledUser>> getAllUsers() {
         List<ControlledUser> users = controlledUserRepository.findAll();
@@ -68,11 +69,7 @@ public class ControlledUserController {
     })
     public ResponseEntity<ControlledUser> getUserById(@PathVariable Integer userId) {
         Optional<ControlledUser> user = controlledUserRepository.findById(userId);
-        if (user.isPresent()) {
-            return ResponseEntity.ok(user.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{userId}")
@@ -99,6 +96,21 @@ public class ControlledUserController {
         if (controlledUserRepository.existsById(userId)) {
             controlledUserRepository.deleteById(userId);
             return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/{userId}/schedules")
+    @Operation(summary = "Get Schedules for a Controlled User", description = "Get all schedules associated with a controlled user.")
+    @Parameters({
+            @Parameter(name = "userId", description = "ID of the controlled user to retrieve schedules for", required = true)
+    })
+    public ResponseEntity<List<Schedule>> getSchedulesForUser(@PathVariable Integer userId) {
+        Optional<ControlledUser> user = controlledUserRepository.findById(userId);
+        if (user.isPresent()) {
+            List<Schedule> schedules = user.get().getSchedules();
+            return ResponseEntity.ok(schedules);
         } else {
             return ResponseEntity.notFound().build();
         }

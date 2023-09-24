@@ -34,7 +34,7 @@ public class AdministrativeUserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @PostMapping("")
+    @PostMapping("/")
     @Operation(summary = "Create an Administrative User", description = "Create a new administrative user.")
     public ResponseEntity<?> createAdminUser(@RequestBody AdministrativeUser adminUser) {
         String newEmail = adminUser.getEmail();
@@ -54,7 +54,7 @@ public class AdministrativeUserController {
         return ResponseEntity.ok(savedAdminUser);
     }
 
-    @GetMapping("")
+    @GetMapping("/")
     @Operation(summary = "Get All Administrative Users", description = "Get a list of all administrative users.")
     public ResponseEntity<List<AdministrativeUser>> getAllAdminUsers() {
         List<AdministrativeUser> adminUsers = administrativeUserRepository.findAll();

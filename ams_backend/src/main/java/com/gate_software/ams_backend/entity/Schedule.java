@@ -1,5 +1,7 @@
 package com.gate_software.ams_backend.entity;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -29,6 +31,8 @@ public class Schedule {
     @Column(name = "exit_time")
     private Time exit_time;
 
-    @Column(name = "controlled_user_id ")
-    private int controlledUserId;
+    @ManyToOne
+    @JoinColumn(name = "controlled_user_id", nullable = false)
+    @NotNull
+    private ControlledUser controlledUser;
 }
