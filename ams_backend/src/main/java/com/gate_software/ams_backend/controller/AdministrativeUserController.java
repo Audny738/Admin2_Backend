@@ -1,16 +1,22 @@
 package com.gate_software.ams_backend.controller;
 
 import com.gate_software.ams_backend.entity.AdministrativeUser;
+import com.gate_software.ams_backend.entity.ControlledUser;
 import com.gate_software.ams_backend.repository.AdministrativeUserRepository;
+import com.gate_software.ams_backend.repository.ControlledUserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -23,15 +29,28 @@ public class AdministrativeUserController {
     private AdministrativeUserRepository administrativeUserRepository;
 
     @Autowired
+    private ControlledUserRepository controlledUserRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @PostMapping("")
     @Operation(summary = "Create an Administrative User", description = "Create a new administrative user.")
-    public ResponseEntity<AdministrativeUser> createAdminUser(@RequestBody AdministrativeUser adminUser) {
+    public ResponseEntity<?> createAdminUser(@RequestBody AdministrativeUser adminUser) {
+        String newEmail = adminUser.getEmail();
+        AdministrativeUser existingAdminUser = administrativeUserRepository.findByEmail(newEmail);
+        ControlledUser existingControlledUser = controlledUserRepository.findByEmail(newEmail);
+        if (existingAdminUser != null || existingControlledUser != null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Email is already in use");
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                    .body(response);
+        }
         String rawPassword = adminUser.getPassword();
         String encodedPassword = passwordEncoder.encode(rawPassword);
         adminUser.setPassword(encodedPassword);
         AdministrativeUser savedAdminUser = administrativeUserRepository.save(adminUser);
+
         return ResponseEntity.ok(savedAdminUser);
     }
 
