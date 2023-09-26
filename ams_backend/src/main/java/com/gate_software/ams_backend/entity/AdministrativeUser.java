@@ -1,5 +1,6 @@
 package com.gate_software.ams_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,10 +18,6 @@ public class AdministrativeUser {
     private String email;
 
     @Column
+    @JsonIgnore
     private String password;
-
-    public AdministrativeUser(String email, String password) {
-        this.email = email;
-        this.password = password;
-    }
 }

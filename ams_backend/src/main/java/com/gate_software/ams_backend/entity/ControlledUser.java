@@ -1,7 +1,11 @@
 package com.gate_software.ams_backend.entity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity
 @Table(name = "controlled_users")
@@ -13,15 +17,34 @@ public class ControlledUser {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
-    @Column
+    @Column(length = 50)
+    private String name;
+
+    @Column(nullable = false)
+    @NotNull
     private String email;
 
-    @Column
+    @Column(nullable = false)
+    @NotNull
+    @JsonIgnore
     private String password;
 
-    public ControlledUser(String email, String password) {
-        this.email = email;
-        this.password = password;
-    }
+    @Column(name = "is_active")
+    private boolean isActive;
 
+    @Column
+    private float salary;
+
+    @ManyToOne
+    @JoinColumn(name = "job_id", nullable = false)
+    @NotNull
+    private Job job;
+
+    @OneToMany(mappedBy = "controlledUser")
+    @JsonIgnore
+    private List<Schedule> schedules;
+
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
+    }
 }

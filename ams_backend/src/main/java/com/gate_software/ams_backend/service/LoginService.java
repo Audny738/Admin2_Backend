@@ -1,5 +1,6 @@
 package com.gate_software.ams_backend.service;
 
+import com.gate_software.ams_backend.dto.AuthenticatedUserDTO;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.gate_software.ams_backend.entity.AdministrativeUser;
 import com.gate_software.ams_backend.entity.ControlledUser;
@@ -25,19 +26,19 @@ public class LoginService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public boolean authenticate(String email, String password) {
+    public AuthenticatedUserDTO authenticate(String email, String password) {
         AdministrativeUser administrativeUser = administrativeUserRepository.findByEmail(email);
 
         if (administrativeUser != null && passwordEncoder.matches(password, administrativeUser.getPassword())) {
-            return true;
+            return new AuthenticatedUserDTO(administrativeUser.getId(), "administrative");
         }
 
         ControlledUser controlledUser = controlledUserRepository.findByEmail(email);
 
         if (controlledUser != null && passwordEncoder.matches(password, controlledUser.getPassword())) {
-            return true;
+            return new AuthenticatedUserDTO(controlledUser.getId(), "controlled");
         }
 
-        return false;
+        return null;
     }
 }
