@@ -1,15 +1,24 @@
 package com.gate_software.ams_backend.controller;
 
+import com.gate_software.ams_backend.dto.ControlledUserDTO;
 import com.gate_software.ams_backend.entity.AdministrativeUser;
 import com.gate_software.ams_backend.entity.ControlledUser;
+import com.gate_software.ams_backend.entity.Job;
 import com.gate_software.ams_backend.entity.Schedule;
 import com.gate_software.ams_backend.repository.AdministrativeUserRepository;
 import com.gate_software.ams_backend.repository.ControlledUserRepository;
+import com.gate_software.ams_backend.repository.JobRepository;
+import com.gate_software.ams_backend.service.ControlledUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,29 +39,21 @@ public class ControlledUserController {
     private ControlledUserRepository controlledUserRepository;
 
     @Autowired
-    private AdministrativeUserRepository administrativeUserRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private ControlledUserService controlledUserService;
 
     @PostMapping("/")
     @Operation(summary = "Create a Controlled User", description = "Create a new controlled user.")
-    public ResponseEntity<?> createUser(@RequestBody ControlledUser user) {
-        String newEmail = user.getEmail();
-        AdministrativeUser existingAdminUser = administrativeUserRepository.findByEmail(newEmail);
-        ControlledUser existingControlledUser = controlledUserRepository.findByEmail(newEmail);
-        if (existingAdminUser != null || existingControlledUser != null) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Email is already in use");
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .body(response);
-        }
-        String rawPassword = user.getPassword();
-        String encodedPassword = passwordEncoder.encode(rawPassword);
-        user.setPassword(encodedPassword);
-        ControlledUser savedUser = controlledUserRepository.save(user);
-
-        return ResponseEntity.ok(savedUser);
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "User created successfully",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = "{\"id\": 1, \"name\": \"John Doe\", \"email\": \"john@example.com\", \"isActive\": true, \"salary\": 50000.0, \"job\": {\"id\": 1, \"name\": \"Job Name\"}}"))),
+            @ApiResponse(responseCode = "422", description = "Unprocessable Entity",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = "{\"message\": \"Email is already in use\"}")))
+    })
+    public ResponseEntity<?> createControlledUser(@RequestBody ControlledUserDTO userDTO) throws ChangeSetPersister.NotFoundException {
+        ResponseEntity<?> createdUser = controlledUserService.createControlledUser(userDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
     @GetMapping("/")
@@ -77,14 +78,9 @@ public class ControlledUserController {
     @Parameters({
             @Parameter(name = "userId", description = "ID of the controlled user to update", required = true)
     })
-    public ResponseEntity<ControlledUser> updateUser(@PathVariable Integer userId, @RequestBody ControlledUser updatedUser) {
-        if (controlledUserRepository.existsById(userId)) {
-            updatedUser.setId(userId); // Ensure that the user ID is the same as provided in the URL
-            ControlledUser savedUser = controlledUserRepository.save(updatedUser);
-            return ResponseEntity.ok(savedUser);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<?> updateUser(@PathVariable Integer userId, @RequestBody ControlledUserDTO userDTO) {
+        ResponseEntity<?> createdUser = controlledUserService.updateControlledUser(userId, userDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
     @DeleteMapping("/{userId}")
@@ -106,13 +102,16 @@ public class ControlledUserController {
     @Parameters({
             @Parameter(name = "userId", description = "ID of the controlled user to retrieve schedules for", required = true)
     })
-    public ResponseEntity<List<Schedule>> getSchedulesForUser(@PathVariable Integer userId) {
-        Optional<ControlledUser> user = controlledUserRepository.findById(userId);
-        if (user.isPresent()) {
-            List<Schedule> schedules = user.get().getSchedules();
+    public ResponseEntity<Object> getSchedulesForUser(@PathVariable int userId) {
+        Optional<ControlledUser> userOptional = controlledUserRepository.findById(userId);
+
+        if (userOptional.isPresent()) {
+            ControlledUser user = userOptional.get();
+            List<Schedule> schedules = user.getSchedules();
             return ResponseEntity.ok(schedules);
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.unprocessableEntity()
+                    .body("Controlled user not found with ID: " + userId);
         }
     }
 }

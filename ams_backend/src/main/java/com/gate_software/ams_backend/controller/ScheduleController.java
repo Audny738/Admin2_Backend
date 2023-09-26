@@ -1,11 +1,18 @@
 package com.gate_software.ams_backend.controller;
 
+import com.gate_software.ams_backend.dto.ScheduleDTO;
 import com.gate_software.ams_backend.entity.Schedule;
+import com.gate_software.ams_backend.error.AMSException;
 import com.gate_software.ams_backend.repository.ScheduleRepository;
+import com.gate_software.ams_backend.service.ScheduleService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,13 +26,23 @@ import java.util.Optional;
 public class ScheduleController {
 
     @Autowired
+    private ScheduleService scheduleService;
+
+    @Autowired
     private ScheduleRepository scheduleRepository;
 
     @PostMapping("/")
     @Operation(summary = "Create a new Schedule")
-    public ResponseEntity<Schedule> createSchedule(@RequestBody Schedule schedule) {
-        Schedule createdSchedule = scheduleRepository.save(schedule);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdSchedule);
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Schedule created successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Schedule.class))),
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = AMSException.class)))
+    })
+    public ResponseEntity<?> createSchedule(@RequestBody ScheduleDTO scheduleDTO) {
+        return scheduleService.createSchedule(scheduleDTO);
     }
 
     @GetMapping("/")
@@ -45,13 +62,8 @@ public class ScheduleController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Update a Schedule by ID")
-    public ResponseEntity<Schedule> updateSchedule(@PathVariable int id, @RequestBody Schedule updatedSchedule) {
-        if (!scheduleRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        updatedSchedule.setId(id);
-        Schedule savedSchedule = scheduleRepository.save(updatedSchedule);
-        return ResponseEntity.ok(savedSchedule);
+    public ResponseEntity<?> updateSchedule(@PathVariable int id, @RequestBody ScheduleDTO scheduleDTO) {
+        return scheduleService.updateSchedule(id, scheduleDTO);
     }
 
     @DeleteMapping("/{id}")

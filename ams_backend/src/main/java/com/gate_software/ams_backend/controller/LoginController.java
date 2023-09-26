@@ -1,17 +1,18 @@
 package com.gate_software.ams_backend.controller;
 
-import com.gate_software.ams_backend.dto.AuthenticatedUser;
+import com.gate_software.ams_backend.dto.AuthenticatedUserDTO;
+import com.gate_software.ams_backend.dto.LoginRequestDTO;
 import com.gate_software.ams_backend.service.LoginService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,7 +25,7 @@ public class LoginController {
     @Autowired
     private LoginService loginService;
 
-    @PostMapping("/login")
+    @PostMapping("/")
     @Operation(summary = "Authenticate user", description = "Authenticate a user based on email and password.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Authentication successful",
@@ -34,17 +35,15 @@ public class LoginController {
                     content = @Content(mediaType = "application/json",
                             examples = @ExampleObject(value = "{\"user\": null, \"status\": false}")))
     })
-    public Map<String, Object> login(
-            @Parameter(description = "User's email") @RequestParam String email,
-            @Parameter(description = "User's password") @RequestParam String password) {
+    public Map<String, Object> login(@RequestBody LoginRequestDTO requestDTO) {
 
-        AuthenticatedUser user = loginService.authenticate(email, password);
+        AuthenticatedUserDTO user = loginService.authenticate(requestDTO.getEmail(), requestDTO.getPassword());
 
         Map<String, Object> response = new HashMap<>();
 
         response.put("user", user);
 
-        if (user != null){
+        if (user != null) {
             response.put("status", true);
         } else {
             response.put("status", false);

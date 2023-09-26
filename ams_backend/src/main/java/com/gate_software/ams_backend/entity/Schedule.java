@@ -1,7 +1,8 @@
 package com.gate_software.ams_backend.entity;
-import io.swagger.v3.oas.annotations.media.Schema;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -18,21 +19,22 @@ public class Schedule {
     private int id;
 
     @ManyToOne
-    @JoinColumn(name = "entry_day_id", referencedColumnName = "id")
+    @JoinColumn(name = "entry_day_id")
     private Day entryDay;
 
     @Column(name = "entry_time")
-    private Time entry_time;
+    private String entryTime;
+
 
     @ManyToOne
-    @JoinColumn(name = "exit_day_id", referencedColumnName = "id")
+    @JoinColumn(name = "exit_day_id")
     private Day exitDay;
 
     @Column(name = "exit_time")
-    private Time exit_time;
+    private String exitTime;
 
     @ManyToOne
-    @JoinColumn(name = "controlled_user_id", nullable = false)
-    @NotNull
+    @JoinColumn(name = "controlled_user_id")
+    @JsonIgnore
     private ControlledUser controlledUser;
 }

@@ -1,4 +1,5 @@
 package com.gate_software.ams_backend.entity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -25,10 +26,11 @@ public class ControlledUser {
 
     @Column(nullable = false)
     @NotNull
+    @JsonIgnore
     private String password;
 
-    @Column
-    private boolean is_active;
+    @Column(name = "is_active")
+    private boolean isActive;
 
     @Column
     private float salary;
@@ -38,6 +40,11 @@ public class ControlledUser {
     @NotNull
     private Job job;
 
-    @OneToMany(mappedBy = "controlledUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "controlledUser")
+    @JsonIgnore
     private List<Schedule> schedules;
+
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
+    }
 }

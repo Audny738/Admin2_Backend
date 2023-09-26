@@ -1,5 +1,6 @@
 package com.gate_software.ams_backend.controller;
 
+import com.gate_software.ams_backend.dto.AdminUserDTO;
 import com.gate_software.ams_backend.entity.AdministrativeUser;
 import com.gate_software.ams_backend.entity.ControlledUser;
 import com.gate_software.ams_backend.repository.AdministrativeUserRepository;
@@ -7,6 +8,10 @@ import com.gate_software.ams_backend.repository.ControlledUserRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,22 +41,36 @@ public class AdministrativeUserController {
 
     @PostMapping("/")
     @Operation(summary = "Create an Administrative User", description = "Create a new administrative user.")
-    public ResponseEntity<?> createAdminUser(@RequestBody AdministrativeUser adminUser) {
-        String newEmail = adminUser.getEmail();
-        AdministrativeUser existingAdminUser = administrativeUserRepository.findByEmail(newEmail);
-        ControlledUser existingControlledUser = controlledUserRepository.findByEmail(newEmail);
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User created successfully",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = "{\"id\": 1, \"email\": \"john@example.com\"}"))),
+            @ApiResponse(responseCode = "422", description = "Unprocessable Entity",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = "{\"message\": \"Email is already in use\"}")))
+    })
+    public ResponseEntity<?> createAdminUser(@RequestBody AdminUserDTO adminUserDTO) {
+
+        String email = adminUserDTO.getEmail();
+        AdministrativeUser existingAdminUser = administrativeUserRepository.findByEmail(email);
+        ControlledUser existingControlledUser = controlledUserRepository.findByEmail(email);
+
         if (existingAdminUser != null || existingControlledUser != null) {
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Email is already in use");
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
                     .body(response);
         }
-        String rawPassword = adminUser.getPassword();
-        String encodedPassword = passwordEncoder.encode(rawPassword);
+
+        AdministrativeUser adminUser = new AdministrativeUser();
+        adminUser.setEmail(email);
+
+        String encodedPassword = passwordEncoder.encode(adminUserDTO.getPassword());
         adminUser.setPassword(encodedPassword);
+
         AdministrativeUser savedAdminUser = administrativeUserRepository.save(adminUser);
 
-        return ResponseEntity.ok(savedAdminUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedAdminUser);
     }
 
     @GetMapping("/")
