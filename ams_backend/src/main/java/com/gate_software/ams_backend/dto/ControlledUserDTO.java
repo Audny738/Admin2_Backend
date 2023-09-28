@@ -4,7 +4,7 @@ public class ControlledUserDTO {
     private String name;
     private String email;
     private String password;
-    private boolean isActive;
+    private boolean active;
     private float salary;
     private int jobId;
 
@@ -21,7 +21,7 @@ public class ControlledUserDTO {
     }
 
     public boolean isActive() {
-        return this.isActive;
+        return this.active;
     }
 
     public float getSalary() {
