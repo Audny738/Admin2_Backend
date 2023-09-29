@@ -1,8 +1,6 @@
 package com.gate_software.ams_backend.service;
 import com.gate_software.ams_backend.dto.ControlledUserDTO;
-import com.gate_software.ams_backend.entity.AdministrativeUser;
-import com.gate_software.ams_backend.entity.ControlledUser;
-import com.gate_software.ams_backend.entity.Job;
+import com.gate_software.ams_backend.entity.*;
 import com.gate_software.ams_backend.repository.AdministrativeUserRepository;
 import com.gate_software.ams_backend.repository.ControlledUserRepository;
 import com.gate_software.ams_backend.repository.JobRepository;
@@ -14,9 +12,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -116,5 +118,45 @@ public class ControlledUserService {
         ControlledUser updatedUser = controlledUserRepository.save(existingUser);
 
         return ResponseEntity.ok(updatedUser);
+    }
+
+    public List<CheckInRecords> getCheckInRecordsForLastMonth(int userId) {
+        Optional<ControlledUser> optionalUser = controlledUserRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            return null;
+        }
+        ControlledUser existingUser = optionalUser.get();
+
+        LocalDateTime currentDate = LocalDateTime.now();
+        int month = currentDate.getMonthValue();
+
+        List<CheckInRecords> checkInRecordsLastMonth = existingUser.getCheckInRecords().stream()
+                .filter(record -> {
+                    LocalDateTime entryDatetime = record.getEntryDatetime().toLocalDateTime();
+                    return entryDatetime.getMonthValue() == month;
+                })
+                .collect(Collectors.toList());
+
+        return checkInRecordsLastMonth;
+    }
+
+    public List<CheckOutRecords> getCheckOutRecordsForLastMonth(int userId) {
+        Optional<ControlledUser> optionalUser = controlledUserRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            return null;
+        }
+        ControlledUser existingUser = optionalUser.get();
+
+        LocalDateTime currentDate = LocalDateTime.now();
+        int month = currentDate.getMonthValue();
+
+        List<CheckOutRecords> checkOutRecordsLastMonth = existingUser.getCheckOutRecords().stream()
+                .filter(record -> {
+                    LocalDateTime exitDatetime = record.getExitDatetime().toLocalDateTime();
+                    return exitDatetime.getMonthValue() == month;
+                })
+                .collect(Collectors.toList());
+
+        return checkOutRecordsLastMonth;
     }
 }

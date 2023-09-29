@@ -1,13 +1,12 @@
 package com.gate_software.ams_backend.controller;
 
+import com.gate_software.ams_backend.dto.CheckInOutRecordDTO;
 import com.gate_software.ams_backend.dto.ControlledUserDTO;
-import com.gate_software.ams_backend.entity.AdministrativeUser;
-import com.gate_software.ams_backend.entity.ControlledUser;
-import com.gate_software.ams_backend.entity.Job;
-import com.gate_software.ams_backend.entity.Schedule;
-import com.gate_software.ams_backend.repository.AdministrativeUserRepository;
+import com.gate_software.ams_backend.entity.*;
 import com.gate_software.ams_backend.repository.ControlledUserRepository;
-import com.gate_software.ams_backend.repository.JobRepository;
+import com.gate_software.ams_backend.service.AttendanceHistoryService;
+import com.gate_software.ams_backend.service.CheckInService;
+import com.gate_software.ams_backend.service.CheckOutService;
 import com.gate_software.ams_backend.service.ControlledUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -21,12 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -40,6 +36,13 @@ public class ControlledUserController {
 
     @Autowired
     private ControlledUserService controlledUserService;
+
+    @Autowired
+    private CheckInService checkInService;
+    @Autowired
+    private CheckOutService checkOutService;
+    @Autowired
+    private AttendanceHistoryService attendanceHistoryService;
 
     @PostMapping("/")
     @Operation(summary = "Create a Controlled User", description = "Create a new controlled user.")
@@ -113,5 +116,40 @@ public class ControlledUserController {
             return ResponseEntity.unprocessableEntity()
                     .body("Controlled user not found with ID: " + userId);
         }
+    }
+
+    //attendance_history
+    @GetMapping("/{userId}/attendance_history")
+    @Operation(summary = "Get the attendance history for a Controlled User", description = "Get all checkin and checkout recors associated with a controlled user.")
+    @Parameters({
+            @Parameter(name = "userId", description = "ID of the controlled user to retrieve checkin and checkout records", required = true)
+    })
+    public ResponseEntity<Object> getAttendanceHistoryForUser(@PathVariable int userId, @RequestParam(required = false, defaultValue = "10") int limit) {
+        Optional<ControlledUser> userOptional = controlledUserRepository.findById(userId);
+        if (userOptional.isPresent()) {
+            return ResponseEntity.ok().body(attendanceHistoryService.getAttendanceHistory(userId, limit));
+        } else {
+            return ResponseEntity.unprocessableEntity()
+                    .body("Controlled user not found with ID: " + userId);
+        }
+    }
+
+    @PostMapping("/user/{userId}/register_inout")
+    @Operation(summary = "Create a new record")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Record created successfully",
+                    content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(mediaType = "application/json"))
+    })
+    public ResponseEntity<?> createCheckInOutRegister(@RequestBody CheckInOutRecordDTO checkInOutRecordDTO, @PathVariable int userId) {
+        Optional<ControlledUser> userOptional = controlledUserRepository.findById(userId);
+        if (!userOptional.isPresent()) {
+            return ResponseEntity.unprocessableEntity()
+                    .body("Controlled user not found with ID: " + userId);
+        }
+        checkInOutRecordDTO.setControlledUserId(userId);
+        boolean isArriving = checkInOutRecordDTO.isArriving();
+        return isArriving ? checkInService.createCheckInRecord(checkInOutRecordDTO) : checkOutService.createCheckOutRecord(checkInOutRecordDTO);
     }
 }
