@@ -121,7 +121,6 @@ public class ControlledUserService {
     }
 
     public List<CheckInRecords> getCheckInRecordsForLastMonth(int userId) {
-        log.info("Hola");
         Optional<ControlledUser> optionalUser = controlledUserRepository.findById(userId);
         if (optionalUser.isEmpty()) {
             return null;
@@ -137,12 +136,6 @@ public class ControlledUserService {
                     return entryDatetime.getMonthValue() == month;
                 })
                 .collect(Collectors.toList());
-        log.info("Hola2");
-        log.info(checkInRecordsLastMonth.size());
-
-        checkInRecordsLastMonth.forEach(checkInRecords -> {
-            log.info(checkInRecords.getId());
-        });
 
         return checkInRecordsLastMonth;
     }
@@ -156,7 +149,6 @@ public class ControlledUserService {
 
         LocalDateTime currentDate = LocalDateTime.now();
         int month = currentDate.getMonthValue();
-        //int month = currentDate.plusMonths(1).getMonthValue();
 
         List<CheckOutRecords> checkOutRecordsLastMonth = existingUser.getCheckOutRecords().stream()
                 .filter(record -> {
