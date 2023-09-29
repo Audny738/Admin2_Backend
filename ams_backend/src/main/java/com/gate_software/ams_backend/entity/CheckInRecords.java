@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
+import java.util.Date;
 
 @Entity
 @Table(name = "check_in_records")
@@ -17,9 +18,16 @@ public class CheckInRecords {
     private int id;
 
     @Column(name = "entry_datetime", updatable = false)
-    @JsonIgnore
     private Timestamp entryDatetime;
 
-    @Column(name = "controlled_user_id")
-    private int controlledUserId;
+    @ManyToOne
+    @JoinColumn(name = "controlled_user_id")
+    @JsonIgnore
+    private ControlledUser controlledUser;
+
+    public void setEntryDatetime(){ this.entryDatetime = new Timestamp(new Date().getTime()); }
+
+    public int getDateNumber(){
+        return this.entryDatetime.toLocalDateTime().getDayOfWeek().getValue();
+    }
 }

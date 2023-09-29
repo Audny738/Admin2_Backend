@@ -44,6 +44,14 @@ public class ControlledUser {
     @JsonIgnore
     private List<Schedule> schedules;
 
+    @OneToMany(mappedBy = "controlledUser")
+    @JsonIgnore
+    private List<CheckInRecords> checkInRecords;
+
+    @OneToMany(mappedBy = "controlledUser")
+    @JsonIgnore
+    private List<CheckOutRecords> checkOutRecords;
+
     public void setIsActive(boolean isActive) {
         this.isActive = isActive;
     }
