@@ -1,19 +1,22 @@
 package com.gate_software.ams_backend.service;
+
 import com.gate_software.ams_backend.dto.ControlledUserDTO;
+import com.gate_software.ams_backend.dto.ControlledUserListDTO;
+import com.gate_software.ams_backend.dto.JobDTO;
 import com.gate_software.ams_backend.entity.*;
 import com.gate_software.ams_backend.repository.AdministrativeUserRepository;
 import com.gate_software.ams_backend.repository.ControlledUserRepository;
 import com.gate_software.ams_backend.repository.JobRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -158,5 +161,27 @@ public class ControlledUserService {
                 .collect(Collectors.toList());
 
         return checkOutRecordsLastMonth;
+    }
+
+    public Page<ControlledUserListDTO> findAllUsersDTOsPaginated(Pageable pageable) {
+        Page<ControlledUser> userPage = controlledUserRepository.findAll(pageable);
+        return userPage.map(this::convertToDTO);
+    }
+
+    private ControlledUserListDTO convertToDTO(ControlledUser user) {
+        ControlledUserListDTO userListDTO = new ControlledUserListDTO();
+        userListDTO.setId(user.getId());
+        userListDTO.setName(user.getName());
+        userListDTO.setEmail(user.getEmail());
+        userListDTO.setSalary(user.getSalary());
+        userListDTO.setActive(user.isActive());
+
+        Job job = user.getJob();
+        if (job != null) {
+            String jobDescription = job.getName() + " (" + job.getArea() + ")";
+            userListDTO.setJobDescription(jobDescription);
+        }
+
+        return userListDTO;
     }
 }

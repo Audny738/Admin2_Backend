@@ -2,6 +2,7 @@ package com.gate_software.ams_backend.controller;
 
 import com.gate_software.ams_backend.dto.CheckInOutRecordDTO;
 import com.gate_software.ams_backend.dto.ControlledUserDTO;
+import com.gate_software.ams_backend.dto.ControlledUserListDTO;
 import com.gate_software.ams_backend.entity.*;
 import com.gate_software.ams_backend.repository.ControlledUserRepository;
 import com.gate_software.ams_backend.service.AttendanceHistoryService;
@@ -18,12 +19,18 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/user")
@@ -61,9 +68,29 @@ public class ControlledUserController {
 
     @GetMapping("/")
     @Operation(summary = "Get All Controlled Users", description = "Get a list of all controlled users.")
-    public ResponseEntity<List<ControlledUser>> getAllUsers() {
-        List<ControlledUser> users = controlledUserRepository.findAll();
-        return ResponseEntity.ok(users);
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "List of controlled users retrieved successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = "{\"controlled_users\": [{\"id\": 1, \"name\": \"John Doe\", \"email\": \"john@example.com\", \"isActive\": true, \"salary\": 50000.0, \"job_description\": \"Job Name (Job Area)\"}]}"
+                            )
+                    )
+            )
+    })
+    public ResponseEntity<Map<String, List<ControlledUserListDTO>>> getAllUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int per_page
+    ) {
+        Pageable pageable = PageRequest.of(page, per_page);
+        Page<ControlledUserListDTO> userDTOPage = controlledUserService.findAllUsersDTOsPaginated(pageable);
+
+        Map<String, List<ControlledUserListDTO>> response = new HashMap<>();
+        response.put("controlled_users", userDTOPage.getContent());
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{userId}")
