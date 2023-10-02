@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -24,6 +25,7 @@ public class CheckOutService {
     private ControlledUserRepository controlledUserRepository;
 
     public ResponseEntity<?> createCheckOutRecord(CheckInOutRecordDTO checkInOutRecordDTO){
+        Timestamp exitDatetime = null;
         Optional<ControlledUser> optionalControlledUser = controlledUserRepository.findById(checkInOutRecordDTO.getControlledUserId());
         if (optionalControlledUser.isEmpty()) {
             Map<String, Object> response = new HashMap<>();
@@ -33,7 +35,12 @@ public class CheckOutService {
         ControlledUser controlledUser = optionalControlledUser.get();
         CheckOutRecords newCheckOutRecord = new CheckOutRecords();
         newCheckOutRecord.setControlledUser(controlledUser);
-        newCheckOutRecord.setExitDatetime();
+
+        if(checkInOutRecordDTO.isTimestampSet()){
+            exitDatetime = checkInOutRecordDTO.getDateTimeRecord();
+        }
+
+        newCheckOutRecord.setExitDatetime(exitDatetime);
 
         CheckOutRecords createdCheckOutRecord = checkOutRepository.save(newCheckOutRecord);
 

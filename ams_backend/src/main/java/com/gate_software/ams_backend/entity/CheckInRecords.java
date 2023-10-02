@@ -25,7 +25,13 @@ public class CheckInRecords {
     @JsonIgnore
     private ControlledUser controlledUser;
 
-    public void setEntryDatetime(){ this.entryDatetime = new Timestamp(new Date().getTime()); }
+    public void setEntryDatetime(Timestamp entryDatetime) {
+        if (entryDatetime != null) {
+            this.entryDatetime = entryDatetime;
+        } else {
+            this.entryDatetime = new Timestamp(new Date().getTime());
+        }
+    }
 
     public int getDateNumber(){
         return this.entryDatetime.toLocalDateTime().getDayOfWeek().getValue();

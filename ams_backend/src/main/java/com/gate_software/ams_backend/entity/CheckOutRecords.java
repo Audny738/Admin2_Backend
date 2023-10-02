@@ -25,7 +25,13 @@ public class CheckOutRecords {
     @JsonIgnore
     private ControlledUser controlledUser;
 
-    public void setExitDatetime(){ this.exitDatetime = new Timestamp(new Date().getTime()); }
+    public void setExitDatetime(Timestamp exitDatetime) {
+        if (exitDatetime != null) {
+            this.exitDatetime = exitDatetime;
+        } else {
+            this.exitDatetime = new Timestamp(new Date().getTime());
+        }
+    }
 
     public int getDateNumber(){
         return this.exitDatetime.toLocalDateTime().getDayOfWeek().getValue();

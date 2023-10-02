@@ -191,7 +191,11 @@ public class ControlledUserController {
     @Operation(summary = "Create a new record")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Record created successfully",
-                    content = @Content(mediaType = "application/json")),
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                            value = "{\"register_inout\": [{\"arriving\": true, \"dateTimeRecord\": \"2023-10-01 9:30:00\"}]}"
+                    ))),
             @ApiResponse(responseCode = "400", description = "Bad Request",
                     content = @Content(mediaType = "application/json"))
     })

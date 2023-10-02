@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -23,6 +24,7 @@ public class CheckInService {
     private ControlledUserRepository controlledUserRepository;
 
     public ResponseEntity<?> createCheckInRecord(CheckInOutRecordDTO checkInOutRecordDTO){
+        Timestamp entryDatetime = null;
         Optional<ControlledUser> optionalControlledUser = controlledUserRepository.findById(checkInOutRecordDTO.getControlledUserId());
         if (optionalControlledUser.isEmpty()) {
             Map<String, Object> response = new HashMap<>();
@@ -32,7 +34,11 @@ public class CheckInService {
         ControlledUser controlledUser = optionalControlledUser.get();
         CheckInRecords newCheckInRecord = new CheckInRecords();
         newCheckInRecord.setControlledUser(controlledUser);
-        newCheckInRecord.setEntryDatetime();
+
+        if(checkInOutRecordDTO.isTimestampSet()){
+            entryDatetime = checkInOutRecordDTO.getDateTimeRecord();
+        }
+        newCheckInRecord.setEntryDatetime(entryDatetime);
 
         CheckInRecords createdCheckInRecord = checkInRepository.save(newCheckInRecord);
 
