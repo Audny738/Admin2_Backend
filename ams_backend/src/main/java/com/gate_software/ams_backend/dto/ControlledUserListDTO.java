@@ -7,15 +7,16 @@ public class ControlledUserListDTO {
     private String name;
     private String email;
     private float salary;
+
     @JsonIgnore
     private JobDTO job;
-    private boolean active;
-
     private String jobDescription;
+    private boolean present;
 
     public void setJobDescription(String jobDescription) {
         this.jobDescription = jobDescription;
     }
+
     public void setId(Integer id) {
         this.id = id;
     }
@@ -36,8 +37,8 @@ public class ControlledUserListDTO {
         this.job = job;
     }
 
-    public void setActive(boolean active) {
-        this.active = active;
+    public void setPresent(boolean present) {
+        this.present = present;
     }
 
     public Integer getId() {
@@ -60,11 +61,11 @@ public class ControlledUserListDTO {
         return job;
     }
 
-    public boolean isActive() {
-        return active;
-    }
-
     public String getJobDescription() {
         return jobDescription;
+    }
+
+    public boolean isPresent() {
+        return present;
     }
 }

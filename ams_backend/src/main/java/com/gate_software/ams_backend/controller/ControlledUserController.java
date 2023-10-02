@@ -75,7 +75,7 @@ public class ControlledUserController {
                     content = @Content(
                             mediaType = "application/json",
                             examples = @ExampleObject(
-                                    value = "{\"controlled_users\": [{\"id\": 1, \"name\": \"John Doe\", \"email\": \"john@example.com\", \"isActive\": true, \"salary\": 50000.0, \"job_description\": \"Job Name (Job Area)\"}]}"
+                                    value = "{\"controlled_users\": [{\"id\": 1, \"name\": \"John Doe\", \"email\": \"john@example.com\",\"salary\": 50000.0, \"job_description\": \"Job Name (Job Area)\", \"present\": true}]}"
                             )
                     )
             )
@@ -85,7 +85,7 @@ public class ControlledUserController {
             @RequestParam(defaultValue = "10") int per_page
     ) {
         Pageable pageable = PageRequest.of(page, per_page);
-        Page<ControlledUserListDTO> userDTOPage = controlledUserService.findAllUsersDTOsPaginated(pageable);
+        Page<ControlledUserListDTO> userDTOPage = controlledUserService.findActiveUsersDTOsPaginated(pageable);
 
         Map<String, List<ControlledUserListDTO>> response = new HashMap<>();
         response.put("controlled_users", userDTOPage.getContent());
@@ -114,16 +114,42 @@ public class ControlledUserController {
     }
 
     @DeleteMapping("/{userId}")
-    @Operation(summary = "Delete a Controlled User", description = "Delete an existing controlled user.")
+    @Operation(summary = "Deactivate a Controlled User", description = "Deactivate an existing controlled user by setting isActive to false.")
     @Parameters({
-            @Parameter(name = "userId", description = "ID of the controlled user to delete", required = true)
+            @Parameter(name = "userId", description = "ID of the controlled user to deactivate", required = true)
     })
-    public ResponseEntity<Void> deleteUser(@PathVariable Integer userId) {
-        if (controlledUserRepository.existsById(userId)) {
-            controlledUserRepository.deleteById(userId);
-            return ResponseEntity.noContent().build();
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "User successfully deactivated",
+                    content = @Content(
+                            mediaType = "text/plain",
+                            examples = @ExampleObject(
+                                    value = "User successfully deactivated"
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found",
+                    content = @Content(
+                            mediaType = "text/plain",
+                            examples = @ExampleObject(
+                                    value = "User not found"
+                            )
+                    )
+            )
+    })
+    public ResponseEntity<String> deleteUser(@PathVariable Integer userId) {
+        Optional<ControlledUser> optionalUser = controlledUserRepository.findById(userId);
+
+        if (optionalUser.isPresent()) {
+            ControlledUser user = optionalUser.get();
+            user.setIsActive(false);
+            controlledUserRepository.save(user);
+            return ResponseEntity.ok("User successfully deactivated");
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
     }
 

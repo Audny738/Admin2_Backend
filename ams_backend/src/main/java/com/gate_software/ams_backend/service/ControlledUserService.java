@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -163,19 +165,22 @@ public class ControlledUserService {
         return checkOutRecordsLastMonth;
     }
 
-    public Page<ControlledUserListDTO> findAllUsersDTOsPaginated(Pageable pageable) {
-        Page<ControlledUser> userPage = controlledUserRepository.findAll(pageable);
+    public Page<ControlledUserListDTO> findActiveUsersDTOsPaginated(Pageable pageable) {
+        Page<ControlledUser> userPage = controlledUserRepository.findByIsActiveTrue(pageable);
         return userPage.map(this::convertToDTO);
     }
 
     private ControlledUserListDTO convertToDTO(ControlledUser user) {
         ControlledUserListDTO userListDTO = new ControlledUserListDTO();
+        List<CheckInRecords> checkInRecords = getCheckInRecordsForLastMonth(user.getId());
+        boolean present = checkInRecords.stream()
+                .anyMatch(record -> isToday(record.getEntryDatetime()));
+
         userListDTO.setId(user.getId());
         userListDTO.setName(user.getName());
         userListDTO.setEmail(user.getEmail());
         userListDTO.setSalary(user.getSalary());
-        userListDTO.setActive(user.isActive());
-
+        userListDTO.setPresent(present);
         Job job = user.getJob();
         if (job != null) {
             String jobDescription = job.getName() + " (" + job.getArea() + ")";
@@ -183,5 +188,11 @@ public class ControlledUserService {
         }
 
         return userListDTO;
+    }
+
+    private boolean isToday(Timestamp entryDatetime) {
+        LocalDate today = LocalDate.now();
+        LocalDate recordDate = entryDatetime.toLocalDateTime().toLocalDate();
+        return today.isEqual(recordDate);
     }
 }
