@@ -75,7 +75,7 @@ public class ControlledUserController {
                     content = @Content(
                             mediaType = "application/json",
                             examples = @ExampleObject(
-                                    value = "{\"controlled_users\": [{\"id\": 1, \"name\": \"John Doe\", \"email\": \"john@example.com\",\"salary\": 50000.0, \"job_description\": \"Job Name (Job Area)\", \"present\": true}]}"
+                                    value = "{\"controlled_users\": [{\"id\": 1, \"name\": \"John Doe\", \"email\": \"john@example.com\",\"salary\": 50000.0, \"job_description\": \"Job Name (Job Area)\", \"present\": true, \"schedules\": [\"7:00 – 11:00\", \"15:00 – 20:00\"]}]}"
                             )
                     )
             )

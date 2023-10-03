@@ -2,6 +2,8 @@ package com.gate_software.ams_backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.util.List;
+
 public class ControlledUserListDTO {
     private Integer id;
     private String name;
@@ -12,6 +14,8 @@ public class ControlledUserListDTO {
     private JobDTO job;
     private String jobDescription;
     private boolean present;
+
+    private List<String> schedules;
 
     public void setJobDescription(String jobDescription) {
         this.jobDescription = jobDescription;
@@ -41,6 +45,10 @@ public class ControlledUserListDTO {
         this.present = present;
     }
 
+    public void setSchedules(List<String> schedules) {
+        this.schedules = schedules;
+    }
+
     public Integer getId() {
         return id;
     }
@@ -67,5 +75,9 @@ public class ControlledUserListDTO {
 
     public boolean isPresent() {
         return present;
+    }
+
+    public List<String> getSchedules() {
+        return this.schedules;
     }
 }
