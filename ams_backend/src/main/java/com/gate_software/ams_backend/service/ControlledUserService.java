@@ -19,10 +19,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -181,6 +178,18 @@ public class ControlledUserService {
         userListDTO.setEmail(user.getEmail());
         userListDTO.setSalary(user.getSalary());
         userListDTO.setPresent(present);
+        int currentDayOfWeek = LocalDate.now().getDayOfWeek().getValue();
+        List<Schedule> userSchedules = user.getSchedules();
+        if (userSchedules != null && !userSchedules.isEmpty()) {
+            List<String> todaySchedules = new ArrayList<>();
+            for (Schedule schedule : userSchedules) {
+                if (schedule.getEntryDay() != null && schedule.getEntryDay().getId() == currentDayOfWeek) {
+                    String scheduleDescription = schedule.getEntryTime() + " - " + schedule.getExitTime();
+                    todaySchedules.add(scheduleDescription);
+                }
+            }
+            userListDTO.setSchedules(todaySchedules);
+        }
         Job job = user.getJob();
         if (job != null) {
             String jobDescription = job.getName() + " (" + job.getArea() + ")";
