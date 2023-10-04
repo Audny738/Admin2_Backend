@@ -23,4 +23,9 @@ public class Job {
     @Column(length = 50, nullable = false)
     @NotNull
     private String area;
+
+    public Job(String name, String area) {
+        this.name = name;
+        this.area = area;
+    }
 }

@@ -36,4 +36,9 @@ public class CheckOutRecords {
     public int getDateNumber(){
         return this.exitDatetime.toLocalDateTime().getDayOfWeek().getValue();
     }
+
+    public CheckOutRecords(Timestamp exitDatetime, ControlledUser controlledUser) {
+        this.exitDatetime = exitDatetime;
+        this.controlledUser = controlledUser;
+    }
 }
