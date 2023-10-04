@@ -36,4 +36,9 @@ public class CheckInRecords {
     public int getDateNumber(){
         return this.entryDatetime.toLocalDateTime().getDayOfWeek().getValue();
     }
+
+    public CheckInRecords(Timestamp entryDatetime, ControlledUser controlledUser) {
+        this.entryDatetime = entryDatetime;
+        this.controlledUser = controlledUser;
+    }
 }

@@ -55,4 +55,13 @@ public class ControlledUser {
     public void setIsActive(boolean isActive) {
         this.isActive = isActive;
     }
+
+    public ControlledUser(String name, String email, String password, boolean isActive, float salary, Job job) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.isActive = isActive;
+        this.salary = salary;
+        this.job = job;
+    }
 }

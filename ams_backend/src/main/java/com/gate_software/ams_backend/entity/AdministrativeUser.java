@@ -20,4 +20,9 @@ public class AdministrativeUser {
     @Column
     @JsonIgnore
     private String password;
+
+    public AdministrativeUser(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
 }

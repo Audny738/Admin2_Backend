@@ -37,4 +37,12 @@ public class Schedule {
     @JoinColumn(name = "controlled_user_id")
     @JsonIgnore
     private ControlledUser controlledUser;
+
+    public Schedule(Day entryDay, String entryTime, Day exitDay, String exitTime, ControlledUser controlledUser) {
+        this.entryDay = entryDay;
+        this.entryTime = entryTime;
+        this.exitDay = exitDay;
+        this.exitTime = exitTime;
+        this.controlledUser = controlledUser;
+    }
 }

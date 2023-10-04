@@ -18,4 +18,9 @@ public class Day {
 
     @Column(name = "name", length = 10, nullable = false)
     private String name;
+
+    public Day(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 }
