@@ -1,12 +1,9 @@
 package com.gate_software.ams_backend.service;
 
-import com.gate_software.ams_backend.dto.ControlledUserDTO;
-import com.gate_software.ams_backend.dto.ControlledUserListDTO;
-import com.gate_software.ams_backend.dto.JobDTO;
+import com.gate_software.ams_backend.dto.*;
 import com.gate_software.ams_backend.entity.*;
-import com.gate_software.ams_backend.repository.AdministrativeUserRepository;
-import com.gate_software.ams_backend.repository.ControlledUserRepository;
-import com.gate_software.ams_backend.repository.JobRepository;
+import com.gate_software.ams_backend.repository.*;
+import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -36,46 +33,96 @@ public class ControlledUserService {
     private JobRepository jobRepository;
 
     @Autowired
+    private DayRepository dayRepository;
+
+    @Autowired
+    private ScheduleRepository scheduleRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public ResponseEntity<?> createControlledUser(ControlledUserDTO userDTO){
-        String email = userDTO.getEmail();
-        AdministrativeUser existingAdminUser = administrativeUserRepository.findByEmail(email);
-        ControlledUser existingControlledUser = controlledUserRepository.findByEmail(email);
+    @Transactional
+    public ResponseEntity<?> createControlledUser(ControlledUserDTO userDTO) {
+        try {
+            String email = userDTO.getEmail();
+            AdministrativeUser existingAdminUser = administrativeUserRepository.findByEmail(email);
+            ControlledUser existingControlledUser = controlledUserRepository.findByEmail(email);
 
-        if (existingAdminUser != null || existingControlledUser != null) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Email is already in use");
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .body(response);
+            if (existingAdminUser != null || existingControlledUser != null) {
+                return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                        .body(createErrorResponse("Email is already in use"));
+            }
+
+            Optional<Job> job = jobRepository.findById(userDTO.getJobId());
+
+            if (job.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(createErrorResponse("Job not found."));
+            }
+
+            ControlledUser newUser = createUser(userDTO, job.get());
+
+            List<Schedule> schedules = new ArrayList<>();
+            if(!userDTO.getSchedules().isEmpty()){
+                schedules = createSchedules(userDTO.getSchedules(), newUser);
+
+                if (schedules == null) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .body(createErrorResponse("One or more days not found."));
+                }
+            }
+
+            ControlledUser savedUser = controlledUserRepository.save(newUser);
+
+            if(!userDTO.getSchedules().isEmpty()){
+                scheduleRepository.saveAll(schedules);
+            }
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse("An error occurred while creating the user."));
+        }
+    }
+
+    private List<Schedule> createSchedules(List<ControlledUserScheduleDTO> scheduleDTOs, ControlledUser newUser) {
+        List<Schedule> schedules = new ArrayList<>();
+
+        for (ControlledUserScheduleDTO scheduleDTO : scheduleDTOs) {
+            Day entryDay = dayRepository.findById(scheduleDTO.getEntryDayId()).orElse(null);
+            Day exitDay = dayRepository.findById(scheduleDTO.getExitDayId()).orElse(null);
+
+            if (entryDay == null || exitDay == null) {
+                return null;
+            }
+
+            Schedule schedule = new Schedule(entryDay, scheduleDTO.getEntryTime(), exitDay, scheduleDTO.getExitTime(), newUser);
+            schedules.add(schedule);
         }
 
-        Optional<Job> job = jobRepository.findById(userDTO.getJobId());
+        return schedules;
+    }
 
-        if (job.isEmpty()) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Job not found.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(response);
-        }
-
+    private ControlledUser createUser(ControlledUserDTO userDTO, Job job) {
         ControlledUser newUser = new ControlledUser();
         newUser.setName(userDTO.getName());
-        newUser.setEmail(email);
-        newUser.setJob(job.get());
-
+        newUser.setEmail(userDTO.getEmail());
+        newUser.setJob(job);
         String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
         newUser.setPassword(encodedPassword);
-
         newUser.setIsActive(userDTO.isActive());
         newUser.setSalary(userDTO.getSalary());
 
-        ControlledUser savedUser = controlledUserRepository.save(newUser);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+        return newUser;
     }
 
-    public ResponseEntity<?> updateControlledUser(int userId, ControlledUserDTO userDTO) {
+    private Map<String, Object> createErrorResponse(String message) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", message);
+        return response;
+    }
+
+    public ResponseEntity<?> updateControlledUser(int userId, EditControlledUserDTO userDTO) {
         Optional<ControlledUser> optionalUser = controlledUserRepository.findById(userId);
 
         if (optionalUser.isEmpty()) {
@@ -116,6 +163,8 @@ public class ControlledUserService {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(response);
         }
         existingUser.setJob(job.get());
+
+        existingUser.setSchedules(userDTO.getSchedules());
 
         ControlledUser updatedUser = controlledUserRepository.save(existingUser);
 
