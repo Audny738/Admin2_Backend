@@ -45,4 +45,16 @@ public class Schedule {
         this.exitTime = exitTime;
         this.controlledUser = controlledUser;
     }
+
+    @Override
+    public String toString() {
+        return "Schedule{" +
+                "id=" + id +
+                ", entryDay=" + entryDay.getName() +
+                ", entryTime='" + entryTime + '\'' +
+                ", exitDay=" + exitDay.getName() +
+                ", exitTime='" + exitTime + '\'' +
+                '}';
+    }
+
 }

@@ -3,6 +3,7 @@ package com.gate_software.ams_backend.controller;
 import com.gate_software.ams_backend.dto.CheckInOutRecordDTO;
 import com.gate_software.ams_backend.dto.ControlledUserDTO;
 import com.gate_software.ams_backend.dto.ControlledUserListDTO;
+import com.gate_software.ams_backend.dto.EditControlledUserDTO;
 import com.gate_software.ams_backend.entity.*;
 import com.gate_software.ams_backend.repository.ControlledUserRepository;
 import com.gate_software.ams_backend.service.AttendanceHistoryService;
@@ -108,7 +109,7 @@ public class ControlledUserController {
     @Parameters({
             @Parameter(name = "userId", description = "ID of the controlled user to update", required = true)
     })
-    public ResponseEntity<?> updateUser(@PathVariable Integer userId, @RequestBody ControlledUserDTO userDTO) {
+    public ResponseEntity<?> updateUser(@PathVariable Integer userId, @RequestBody EditControlledUserDTO userDTO) {
         ResponseEntity<?> createdUser = controlledUserService.updateControlledUser(userId, userDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
