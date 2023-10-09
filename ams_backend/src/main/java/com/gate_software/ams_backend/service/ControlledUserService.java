@@ -122,6 +122,7 @@ public class ControlledUserService {
         return response;
     }
 
+    @Transactional
     public ResponseEntity<?> updateControlledUser(int userId, EditControlledUserDTO userDTO) {
         Optional<ControlledUser> optionalUser = controlledUserRepository.findById(userId);
 
@@ -164,11 +165,57 @@ public class ControlledUserService {
         }
         existingUser.setJob(job.get());
 
-        existingUser.setSchedules(userDTO.getSchedules());
+        List<Schedule> schedules = new ArrayList<>();
+        if(!userDTO.getSchedules().isEmpty()){
+            schedules = createOrUpdateSchedules(userDTO.getSchedules(), existingUser);
+
+            if (schedules == null) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "One or more schedules or Day not found.");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+        }
 
         ControlledUser updatedUser = controlledUserRepository.save(existingUser);
 
+        if(!userDTO.getSchedules().isEmpty()){
+            scheduleRepository.saveAll(schedules);
+        }
+
         return ResponseEntity.ok(updatedUser);
+    }
+
+    private List<Schedule> createOrUpdateSchedules(List<EditControllerUseScheduleDTO> scheduleDTOs, ControlledUser user) {
+        List<Schedule> schedules = new ArrayList<>();
+
+        for (EditControllerUseScheduleDTO scheduleDTO : scheduleDTOs) {
+            Day entryDay = dayRepository.findById(scheduleDTO.getEntryDayId()).orElse(null);
+            Day exitDay = dayRepository.findById(scheduleDTO.getExitDayId()).orElse(null);
+
+            if (entryDay == null || exitDay == null) {
+                return null;
+            }
+
+            if (scheduleDTO.getId() > 0) {
+                Optional<Schedule> optionalSchedule = scheduleRepository.findById(scheduleDTO.getId());
+                if (optionalSchedule.isPresent()) {
+                    Schedule existingSchedule = optionalSchedule.get();
+                    existingSchedule.setEntryDay(entryDay);
+                    existingSchedule.setEntryTime(scheduleDTO.getEntryTime());
+                    existingSchedule.setExitDay(exitDay);
+                    existingSchedule.setExitTime(scheduleDTO.getExitTime());
+                    existingSchedule.setControlledUser(user);
+                    schedules.add(existingSchedule);
+                } else {
+                    return null;
+                }
+            } else {
+                Schedule newSchedule = new Schedule(entryDay, scheduleDTO.getEntryTime(), exitDay, scheduleDTO.getExitTime(), user);
+                schedules.add(newSchedule);
+            }
+        }
+
+        return schedules;
     }
 
     public List<CheckInRecords> getCheckInRecordsForLastMonth(int userId) {

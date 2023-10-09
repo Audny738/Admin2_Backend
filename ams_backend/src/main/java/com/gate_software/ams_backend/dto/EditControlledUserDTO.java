@@ -13,5 +13,5 @@ public class EditControlledUserDTO {
     private boolean active;
     private float salary;
     private int jobId;
-    private List<Schedule> schedules;
+    private List<EditControllerUseScheduleDTO> schedules;
 }
