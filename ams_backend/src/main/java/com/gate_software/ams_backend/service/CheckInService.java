@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,19 +47,20 @@ public class CheckInService {
 
         CheckInRecords createdCheckInRecord = checkInRepository.save(newCheckInRecord);
 
-        notifyCheckIn(controlledUser.getEmail(), controlledUser.getName(), newCheckInRecord.getEntryDatetime());
+        notifyCheckIn(controlledUser.getEmail(), controlledUser.getName(),
+                newCheckInRecord.getEntryDatetime().toLocalDateTime());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCheckInRecord);
     }
 
-    private void notifyCheckIn(String email, String name, Timestamp datetime) {
+    private void notifyCheckIn(String email, String name, LocalDateTime datetime) {
         Context emailData = new Context();
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("KK:mm a");
 
         emailData.setVariable("name", name);
-        emailData.setVariable("date", datetime.toLocalDateTime().format(dateFormatter));
-        emailData.setVariable("time", datetime.toLocalDateTime().format(timeFormatter));
+        emailData.setVariable("date", datetime.format(dateFormatter));
+        emailData.setVariable("time", datetime.format(timeFormatter));
 
         emailService.sendAttendanceEmail(email, emailData);
     }

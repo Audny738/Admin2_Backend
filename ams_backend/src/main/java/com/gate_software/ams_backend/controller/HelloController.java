@@ -20,18 +20,11 @@ public class HelloController {
     @GetMapping
     @Operation(summary = "Hello world!")
     public ResponseEntity<String> helloWorld() {
-//        testMails();
         return new ResponseEntity<>("Hello world!", HttpStatus.OK);
     }
 
     private void testMails() {
         String email = "receptor-email@mail";
-
-        Context a_context = new Context();
-        a_context.setVariable("name", "Benardo Acosta Rosales");
-        a_context.setVariable("date", "11/09/2023");
-        a_context.setVariable("time", "8:55 a.m.");
-        emailService.sendAttendanceEmail(email, a_context);
 
         Context na_context = new Context();
         na_context.setVariable("date", "11/09/2023");
@@ -40,11 +33,5 @@ public class HelloController {
                 "Antonio Linares Flores", "Rosa Martínez Ocampo", "Fatima Dieguez Llanos"
         });
         emailService.sendNonAttendanceEmail(email, na_context);
-
-        Context ul_context = new Context();
-        ul_context.setVariable("email", "diego_lo21@hotmail.com");
-        ul_context.setVariable("date", "11/09/2023");
-        ul_context.setVariable("time", "8:55 a.m.");
-        emailService.sendUnauthorizedLoginEmail(email, ul_context);
     }
 }
