@@ -2,12 +2,10 @@ package com.gate_software.ams_backend.service;
 
 import com.gate_software.ams_backend.dto.ControlledUserDTO;
 import com.gate_software.ams_backend.dto.ControlledUserListDTO;
-import com.gate_software.ams_backend.dto.JobDTO;
 import com.gate_software.ams_backend.entity.*;
 import com.gate_software.ams_backend.repository.AdministrativeUserRepository;
 import com.gate_software.ams_backend.repository.ControlledUserRepository;
 import com.gate_software.ams_backend.repository.JobRepository;
-import com.gate_software.ams_backend.repository.ScheduleRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -35,9 +33,6 @@ public class ControlledUserService {
 
     @Autowired
     private JobRepository jobRepository;
-
-    @Autowired
-    private ScheduleRepository scheduleRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;

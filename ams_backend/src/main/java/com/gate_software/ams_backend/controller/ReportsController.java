@@ -1,5 +1,4 @@
 package com.gate_software.ams_backend.controller;
-import com.gate_software.ams_backend.service.ControlledUserService;
 import com.gate_software.ams_backend.service.ReportsService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +18,6 @@ import java.time.format.DateTimeFormatter;
 public class ReportsController {
     @Autowired
     private ReportsService reportsService;
-    @Autowired
-    private ControlledUserService controlledUserService;
 
     @GetMapping("/users")
     public ResponseEntity<String> generateExcelReport(HttpServletResponse response) throws IOException {

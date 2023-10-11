@@ -1,6 +1,4 @@
 package com.gate_software.ams_backend.service;
-
-import com.gate_software.ams_backend.controller.ControlledUserController;
 import com.gate_software.ams_backend.entity.ControlledUser;
 import com.gate_software.ams_backend.repository.ControlledUserRepository;
 import org.apache.poi.hssf.usermodel.HSSFRow;
