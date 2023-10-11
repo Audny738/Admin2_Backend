@@ -41,6 +41,24 @@ public class ControlledUserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    public List<ControlledUser> listAll() {
+        return controlledUserRepository.findAll();
+    }
+
+    public HashMap<Integer, String> getSchedulesPerDay(int user_id){
+        Optional<ControlledUser> optionalUser = controlledUserRepository.findById(user_id);
+        if (optionalUser.isEmpty()) {
+            return null;
+        }
+
+        HashMap<Integer, String> schedules = new HashMap<>();
+        ControlledUser user = optionalUser.get();
+        user.getSchedules().stream().forEach(schedule -> {
+            schedules.put(schedule.getEntryDay().getId(), schedule.getEntryDay().getName() + " " + schedule.getEntryTime() + " a " + schedule.getExitDay().getName() + " " +  schedule.getExitTime());
+        });
+        return schedules;
+    }
+
     @Transactional
     public ResponseEntity<?> createControlledUser(ControlledUserDTO userDTO) {
         try {
