@@ -9,8 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -18,6 +21,8 @@ import java.util.Optional;
 @Service
 @Log4j2
 public class CheckInService {
+    @Autowired
+    private EmailService emailService;
     @Autowired
     CheckInRepository checkInRepository;
     @Autowired
@@ -42,6 +47,21 @@ public class CheckInService {
 
         CheckInRecords createdCheckInRecord = checkInRepository.save(newCheckInRecord);
 
+        notifyCheckIn(controlledUser.getEmail(), controlledUser.getName(),
+                newCheckInRecord.getEntryDatetime().toLocalDateTime());
+
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCheckInRecord);
+    }
+
+    private void notifyCheckIn(String email, String name, LocalDateTime datetime) {
+        Context emailData = new Context();
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("KK:mm a");
+
+        emailData.setVariable("name", name);
+        emailData.setVariable("date", datetime.format(dateFormatter));
+        emailData.setVariable("time", datetime.format(timeFormatter));
+
+        emailService.sendAttendanceEmail(email, emailData);
     }
 }

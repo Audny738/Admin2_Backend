@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte de inasistencia</title>
+    <style>
+        .mail-container {
+            width: 100%;
+        }
+
+        .mail-container,
+        .mail-container tbody,
+        .mail-container tr {
+            border: 0;
+            border-color: transparent;
+        }
+
+        .colored-row {
+            width: 100%;
+            height: 2.8rem;
+            background-color: #DC7A20;
+        }
+
+        .content-row {
+            background-color: #D9D9D9;
+        }
+
+        .content-row h1 {
+            font-size: 1.4rem;
+        }
+
+        .content-row h1 {
+            font-size: 1.1rem;
+        }
+
+        .content-container {
+            display: block;
+            width: 80%;
+            max-width: 30rem;
+            margin-top: 0;
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 0;
+        }
+
+        .goodbye-message {
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .company-name {
+            font-weight: bold;
+            font-style: italic;
+            text-align: center;
+            font-size: 1.6rem;
+        }
+    </style>
+</head>
+<body>
+    <table class="mail-container">
+        <tbody>
+            <tr class="colored-row">
+                <td></td>
+            </tr>
+            <tr class="content-row">
+                <td>
+                    <div class="content-container">
+                        <h1>¡Buen día!</h1>
+                        <p>
+                            Los empleados que no llegaron a laborar hoy <span th:text="${date}">Fecha</span>
+                            para antes de las <span th:text="${time}">Hora</span> son:
+                        </p>
+                        <ul>
+                            <li th:each="user : ${users}">
+                                <span th:text="${user}">Usuario</span>
+                            </li>
+                        </ul>
+                        <p class="goodbye-message">
+                            Por favor, comunícate con ellos para corroborar lo ocurrido.
+                        </p>
+                    </div>
+                </td>
+            </tr>
+            <tr class="colored-row">
+                <td class="company-name">AMS</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

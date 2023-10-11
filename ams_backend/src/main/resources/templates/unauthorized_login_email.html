@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Aviso de intento de acceso no autorizado</title>
+    <style>
+        .mail-container {
+            width: 100%;
+        }
+
+        .mail-container,
+        .mail-container tbody,
+        .mail-container tr {
+            border: 0;
+            border-color: transparent;
+        }
+
+        .colored-row {
+            width: 100%;
+            height: 2.8rem;
+            background-color: #DC7A20;
+        }
+
+        .content-row {
+            background-color: #D9D9D9;
+        }
+
+        .content-row h1 {
+            font-size: 1.4rem;
+        }
+
+        .content-row h1 {
+            font-size: 1.1rem;
+        }
+
+        .content-container {
+            display: block;
+            width: 80%;
+            max-width: 30rem;
+            margin-top: 0;
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 0;
+        }
+
+        .goodbye-message {
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .company-name {
+            font-weight: bold;
+            font-style: italic;
+            text-align: center;
+            font-size: 1.6rem;
+        }
+    </style>
+</head>
+<body>
+    <table class="mail-container">
+        <tbody>
+            <tr class="colored-row">
+                <td></td>
+            </tr>
+            <tr class="content-row">
+                <td>
+                    <div class="content-container">
+                        <h1>¡Alerta!</h1>
+                        <p>
+                            Se ha detectado un intento de acceso no autorizado para la cuenta con el correo:
+                        </p>
+                        <ul>
+                            <li>
+                                <span th:text="${email}">Correo</span>
+                            </li>
+                        </ul>
+                        <p>
+                            El evento ocurrió el <span th:text="${date}">Fecha</span>
+                            a las <span th:text="${time}">Hora</span>. Si más eventos como
+                            éste se presentan, favor de darle seguimiento.
+                        </p>
+                        <p>
+                            Favor de comunicar este incidente al departamento correspondiente.
+                        </p>
+                        <p class="goodbye-message">
+                            ¡Manténte alerta!
+                        </p>
+                    </div>
+                </td>
+            </tr>
+            <tr class="colored-row">
+                <td class="company-name">AMS</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
