@@ -7,6 +7,7 @@ import com.gate_software.ams_backend.entity.*;
 import com.gate_software.ams_backend.repository.AdministrativeUserRepository;
 import com.gate_software.ams_backend.repository.ControlledUserRepository;
 import com.gate_software.ams_backend.repository.JobRepository;
+import com.gate_software.ams_backend.repository.ScheduleRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -36,7 +37,28 @@ public class ControlledUserService {
     private JobRepository jobRepository;
 
     @Autowired
+    private ScheduleRepository scheduleRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
+
+    public List<ControlledUser> listAll() {
+        return controlledUserRepository.findAll();
+    }
+
+    public HashMap<Integer, String> getSchedulesPerDay(int user_id){
+        Optional<ControlledUser> optionalUser = controlledUserRepository.findById(user_id);
+        if (optionalUser.isEmpty()) {
+            return null;
+        }
+
+        HashMap<Integer, String> schedules = new HashMap<>();
+        ControlledUser user = optionalUser.get();
+        user.getSchedules().stream().forEach(schedule -> {
+            schedules.put(schedule.getEntryDay().getId(), schedule.getEntryDay().getName() + " " + schedule.getEntryTime() + " a " + schedule.getExitDay().getName() + " " +  schedule.getExitTime());
+        });
+        return schedules;
+    }
 
     public ResponseEntity<?> createControlledUser(ControlledUserDTO userDTO){
         String email = userDTO.getEmail();
