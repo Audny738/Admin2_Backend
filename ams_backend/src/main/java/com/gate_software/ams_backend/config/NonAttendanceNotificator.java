@@ -4,6 +4,7 @@ import com.gate_software.ams_backend.entity.AdministrativeUser;
 import com.gate_software.ams_backend.entity.ControlledUser;
 import com.gate_software.ams_backend.repository.AdministrativeUserRepository;
 import com.gate_software.ams_backend.repository.ControlledUserRepository;
+import com.gate_software.ams_backend.service.ControlledUserService;
 import com.gate_software.ams_backend.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,13 +22,16 @@ public class NonAttendanceNotificator {
     @Autowired
     private ControlledUserRepository controlledUserRepository;
     @Autowired
+    private ControlledUserService controlledUserService;
+    @Autowired
     private EmailService emailService;
 
-    @Scheduled(cron = "0 0 7 ? * *")
+    @Scheduled(cron = "0 0 12 ? * *")
     public void checkDailyAssistance() {
         List<String> namesList = controlledUserRepository.findAll()
                 .stream()
-                .filter(controlledUser -> !controlledUser.isActive())
+                .filter(ControlledUser::isActive)
+                .filter(controlledUser -> !controlledUserService.verifyIsPresent(controlledUser.getId()))
                 .map(ControlledUser::getName)
                 .toList();
 

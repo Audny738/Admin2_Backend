@@ -283,15 +283,12 @@ public class ControlledUserService {
 
     private ControlledUserListDTO convertToDTO(ControlledUser user) {
         ControlledUserListDTO userListDTO = new ControlledUserListDTO();
-        List<CheckInRecords> checkInRecords = getCheckInRecordsForLastMonth(user.getId());
-        boolean present = checkInRecords.stream()
-                .anyMatch(record -> isToday(record.getEntryDatetime()));
 
         userListDTO.setId(user.getId());
         userListDTO.setName(user.getName());
         userListDTO.setEmail(user.getEmail());
         userListDTO.setSalary(user.getSalary());
-        userListDTO.setPresent(present);
+        userListDTO.setPresent(verifyIsPresent(user.getId()));
         int currentDayOfWeek = LocalDate.now().getDayOfWeek().getValue();
         List<Schedule> userSchedules = user.getSchedules();
         if (userSchedules != null && !userSchedules.isEmpty()) {
@@ -311,6 +308,12 @@ public class ControlledUserService {
         }
 
         return userListDTO;
+    }
+
+    public boolean verifyIsPresent(int user_id) {
+        return getCheckInRecordsForLastMonth(user_id)
+                .stream()
+                .anyMatch(record -> isToday(record.getEntryDatetime()));
     }
 
     private boolean isToday(Timestamp entryDatetime) {

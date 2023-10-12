@@ -44,7 +44,7 @@ public class ControlledUser {
     @JsonIgnore
     private List<Schedule> schedules;
 
-    @OneToMany(mappedBy = "controlledUser")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "controlledUser")
     @JsonIgnore
     private List<CheckInRecords> checkInRecords;
 
