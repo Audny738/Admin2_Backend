@@ -14,4 +14,5 @@ public class EditControlledUserDTO {
     private float salary;
     private int jobId;
     private List<EditControllerUseScheduleDTO> schedules;
+    private List<Integer> deletableSchedules;
 }
