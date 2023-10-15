@@ -182,6 +182,10 @@ public class ControlledUserService {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(response);
         }
         existingUser.setJob(job.get());
+        
+        for (Integer scheduleId : userDTO.getDeletableSchedules()) {
+            scheduleRepository.deleteById(scheduleId);
+        }
 
         List<Schedule> schedules = new ArrayList<>();
         if(!userDTO.getSchedules().isEmpty()){
