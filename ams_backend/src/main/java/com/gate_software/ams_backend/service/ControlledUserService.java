@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -278,6 +279,30 @@ public class ControlledUserService {
                 .collect(Collectors.toList());
 
         return checkOutRecordsLastMonth;
+    }
+
+    public CheckInOutContainer getCheckInOutRecordsForDate(LocalDate targetDate, int userId) {
+        Optional<ControlledUser> optionalUser = controlledUserRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            return null;
+        }
+        ControlledUser existingUser = optionalUser.get();
+
+        Optional<CheckInRecords> firstCheckInRecord = existingUser.getCheckInRecords().stream()
+                .filter(record -> {
+                    LocalDate entryDate = record.getEntryDatetime().toLocalDateTime().toLocalDate();
+                    return entryDate.isEqual(targetDate);
+                })
+                .findFirst();
+
+        Optional<CheckOutRecords> firstCheckOutRecord = existingUser.getCheckOutRecords().stream()
+                .filter(record -> {
+                    LocalDate exitDate = record.getExitDatetime().toLocalDateTime().toLocalDate();
+                    return exitDate.isEqual(targetDate);
+                })
+                .findFirst();
+
+        return new CheckInOutContainer(firstCheckInRecord.orElse(null), firstCheckOutRecord.orElse(null));
     }
 
     public Page<ControlledUserListDTO> findActiveUsersDTOsPaginated(Pageable pageable) {
