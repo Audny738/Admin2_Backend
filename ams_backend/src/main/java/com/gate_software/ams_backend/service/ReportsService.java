@@ -41,6 +41,7 @@ public class ReportsService {
         HashMap<Integer, String> schedules;
 
         for(ControlledUser user : controlledUsers){
+            if (!user.isActive()) continue;
             HSSFRow datarow = sheet.createRow(dataRowIndex);
             datarow.createCell(0).setCellValue(user.getName());
             datarow.createCell(1).setCellValue(user.getEmail());
