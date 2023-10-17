@@ -14,4 +14,6 @@ public interface ControlledUserRepository extends JpaRepository<ControlledUser, 
     ControlledUser findByEmail(String email);
 
     Page<ControlledUser> findByIsActiveTrue(Pageable pageable);
+
+    List<ControlledUser> findAllByIsActiveTrue();
 }

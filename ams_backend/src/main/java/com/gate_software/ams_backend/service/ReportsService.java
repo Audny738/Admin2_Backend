@@ -1,5 +1,6 @@
 package com.gate_software.ams_backend.service;
 import com.gate_software.ams_backend.dto.CheckInOutContainer;
+import com.gate_software.ams_backend.dto.WorkHourRecordDTO;
 import com.gate_software.ams_backend.entity.CheckInRecords;
 import com.gate_software.ams_backend.entity.CheckOutRecords;
 import com.gate_software.ams_backend.entity.ControlledUser;
@@ -14,11 +15,12 @@ import org.springframework.stereotype.Service;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 @Service
 public class ReportsService {
@@ -103,5 +105,70 @@ public class ReportsService {
         workbook.write(ops);
         workbook.close();
         ops.close();
+    }
+
+    public void generateWorkHourReport(HttpServletResponse response, LocalDate startDate, LocalDate endDate) throws IOException {
+        List<ControlledUser> controlledUsers = controlledUserRepository.findAll();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        HSSFSheet sheet = workbook.createSheet("Horas Trabajadas y Salario");
+        HSSFRow headerRow = sheet.createRow(0);
+
+        headerRow.createCell(0).setCellValue("Nombre del Usuario");
+        headerRow.createCell(1).setCellValue("Horas Trabajadas");
+        headerRow.createCell(2).setCellValue("Monto a Pagar");
+
+        int dataRowIndex = 1;
+
+        for (ControlledUser user : controlledUsers) {
+            if (user.isActive()) {
+                long totalHoursWorked = calculateHoursWorked(user, startDate, endDate);
+                float hourlyRate = user.getSalary();
+                float totalPayment = totalHoursWorked * hourlyRate;
+
+                HSSFRow dataRow = sheet.createRow(dataRowIndex);
+                dataRow.createCell(0).setCellValue(user.getName());
+                dataRow.createCell(1).setCellValue(totalHoursWorked);
+                dataRow.createCell(2).setCellValue(totalPayment);
+
+                dataRowIndex++;
+            }
+        }
+
+        ServletOutputStream ops = response.getOutputStream();
+        workbook.write(ops);
+        workbook.close();
+        ops.close();
+    }
+
+    private long calculateHoursWorked(ControlledUser user, LocalDate startDate, LocalDate endDate) {
+        long totalHoursWorked = 0;
+        List<CheckInRecords> checkInRecords = user.getCheckInRecords();
+        List<CheckOutRecords> checkOutRecords = user.getCheckOutRecords();
+
+        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+            LocalDate finalDate = date;
+            Optional<CheckInRecords> checkInRecord = checkInRecords.stream()
+                    .filter(record -> record.getEntryDatetime().toLocalDateTime().toLocalDate().isEqual(finalDate))
+                    .findFirst();
+
+            Optional<CheckOutRecords> checkOutRecord = checkOutRecords.stream()
+                    .filter(record -> record.getExitDatetime().toLocalDateTime().toLocalDate().isEqual(finalDate))
+                    .findFirst();
+
+            if (checkInRecord.isPresent() && checkOutRecord.isPresent()) {
+                Timestamp entryTimestamp = checkInRecord.get().getEntryDatetime();
+                Timestamp exitTimestamp = checkOutRecord.get().getExitDatetime();
+
+                LocalDateTime entryTime = entryTimestamp.toLocalDateTime();
+                LocalDateTime exitTime = exitTimestamp.toLocalDateTime();
+
+                long hoursWorked = ChronoUnit.HOURS.between(entryTime, exitTime);
+                totalHoursWorked += hoursWorked;
+            }
+        }
+
+        return totalHoursWorked;
     }
 }
