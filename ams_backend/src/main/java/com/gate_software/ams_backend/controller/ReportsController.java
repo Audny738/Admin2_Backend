@@ -67,4 +67,38 @@ public class ReportsController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @GetMapping("/payroll")
+    @Operation(summary = "Generate a report of work hours and salary", description = "Generate a report of work hours and salary for active controlled users in a date range.")
+    public ResponseEntity<T> generateWorkHourReport(
+            @Parameter(
+                    name = "startDate",
+                    description = "Start date in the format yyyy-MM-dd",
+                    in = ParameterIn.QUERY,
+                    schema = @Schema(type = "string", format = "yyyy-MM-dd"),
+                    example = "2023-10-15"
+            )
+            @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+            @Parameter(
+                    name = "endDate",
+                    description = "End date in the format yyyy-MM-dd",
+                    in = ParameterIn.QUERY,
+                    schema = @Schema(type = "string", format = "yyyy-MM-dd"),
+                    example = "2023-10-20"
+            )
+            @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+            HttpServletResponse response) throws IOException {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formattedStartDate = startDate.format(formatter);
+        String formattedEndDate = endDate.format(formatter);
+        String fileName = "HorasTrabajadas_" + formattedStartDate + "_al_" + formattedEndDate + ".xls";
+
+        response.setContentType("application/octet-stream");
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment;filename=" + fileName;
+        response.setHeader(headerKey, headerValue);
+
+        reportsService.generateWorkHourReport(response, startDate, endDate);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
