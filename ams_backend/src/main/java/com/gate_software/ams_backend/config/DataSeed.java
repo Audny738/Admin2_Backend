@@ -5,6 +5,7 @@ import com.gate_software.ams_backend.repository.*;
 import com.gate_software.ams_backend.service.CheckOutService;
 import com.gate_software.ams_backend.service.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
@@ -26,10 +27,12 @@ public class DataSeed {
     private CheckOutRepository checkOutRepository;
     @Autowired
     private DayRepository dayRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     public void loadData() {
-        AdministrativeUser adminUser = new AdministrativeUser("joshua@gmail.com", "admin1234");
+        AdministrativeUser adminUser = new AdministrativeUser("joshua@gmail.com", passwordEncoder.encode("admin1234"));
         Job job = new Job("Tecnología", "Ingeniero de Software");
-        ControlledUser user = new ControlledUser("Rodrigo Urtecho","rodrigo@gmail.com", "1234", true, 10000, job);
+        ControlledUser user = new ControlledUser("Rodrigo Urtecho","rodrigo@gmail.com", passwordEncoder.encode("1234"), true, 10000, job);
         Schedule schedule = new Schedule(dayRepository.getReferenceById(1), "08:00:00", dayRepository.getReferenceById(1), "12:00:00", user);
         Schedule schedule1 = new Schedule(dayRepository.getReferenceById(2), "08:00:00", dayRepository.getReferenceById(2), "12:00:00", user);
         LocalDateTime dateTime = LocalDateTime.of(2023, 10, 1, 8, 0);
