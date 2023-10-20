@@ -21,19 +21,19 @@ public class EmailService {
     @Autowired
     private ApplicationContext applicationContext;
 
-    public void sendAttendanceEmail(String toEmailAddress, Context emailData) {
+    public boolean sendAttendanceEmail(String toEmailAddress, Context emailData) {
         String bodyText = templateEngine.process(ATTENDANCE_TEMPLATE, emailData);
-        MAILER.sendEmail(toEmailAddress, "Aviso de asistencia", bodyText);
+        return MAILER.sendEmail(toEmailAddress, "Aviso de asistencia", bodyText);
     }
 
-    public void sendNonAttendanceEmail(String toEmailAddress, Context emailData) {
+    public boolean sendNonAttendanceEmail(String toEmailAddress, Context emailData) {
         String bodyText = templateEngine.process(NON_ATTENDANCE_TEMPLATE, emailData);
-        MAILER.sendEmail(toEmailAddress, "Reporte de inasistencia", bodyText);
+        return MAILER.sendEmail(toEmailAddress, "Reporte de inasistencia", bodyText);
     }
 
-    public void sendUnauthorizedLoginEmail(String toEmailAddress, Context emailData) {
+    public boolean sendUnauthorizedLoginEmail(String toEmailAddress, Context emailData) {
         String bodyText = templateEngine.process(UNAUTHORIZED_LOGIN_TEMPLATE, emailData);
-        MAILER.sendEmail(toEmailAddress, "Aviso de intento de acceso no autorizado", bodyText);
+        return MAILER.sendEmail(toEmailAddress, "Aviso de intento de acceso no autorizado", bodyText);
     }
 }
 
