@@ -6,9 +6,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,7 +27,7 @@ public class JobController {
 
     @PostMapping("/")
     @Operation(summary = "Create a Job", description = "Create a new job.")
-    public ResponseEntity<Job> createJob(@RequestBody Job job) {
+    public ResponseEntity<Job> createJob(@Valid @RequestBody Job job) {
         Job createdJob = jobRepository.save(job);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdJob);
     }
@@ -53,7 +55,7 @@ public class JobController {
     @Parameters({
             @Parameter(name = "jobId", description = "ID of the job to update", required = true)
     })
-    public ResponseEntity<Job> updateJob(@PathVariable Integer jobId, @RequestBody Job updatedJob) {
+    public ResponseEntity<Job> updateJob(@PathVariable Integer jobId, @Valid @RequestBody Job updatedJob) {
         if (jobRepository.existsById(jobId)) {
             updatedJob.setId(jobId);
             Job savedJob = jobRepository.save(updatedJob);
@@ -75,5 +77,11 @@ public class JobController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<String> handleValidationException(MethodArgumentNotValidException ex) {
+        String errorMessage = ex.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
+        return ResponseEntity.badRequest().body(errorMessage);
     }
 }
