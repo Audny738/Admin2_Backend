@@ -33,7 +33,8 @@ public class GmailMailer implements Mailer {
     private static final List<String> SCOPES = Collections.singletonList(GmailScopes.GMAIL_SEND);
     private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
 
-    public void sendEmail(String toEmailAddress, String subject, String bodyText) {
+    public boolean sendEmail(String toEmailAddress, String subject, String bodyText) {
+        boolean success = true;
         try {
             final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
             Gmail service = new Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
@@ -45,7 +46,9 @@ public class GmailMailer implements Mailer {
             service.users().messages().send("me", message).execute();
         } catch (Exception e) {
             System.out.println(e.getMessage());
+            success = false;
         }
+        return success;
     }
 
     private Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
