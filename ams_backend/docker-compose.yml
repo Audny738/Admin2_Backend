@@ -16,3 +16,5 @@ services:
     ports:
       - "8090:8080"
     network_mode: "host"
+    depends_on:
+     - ams_db
