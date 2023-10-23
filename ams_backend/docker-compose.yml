@@ -1,14 +1,7 @@
 version: '3.1'
 
 services:
-  ams_db:
-    image: mysql
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: 123456789
-      MYSQL_DATABASE: ams_backend
-    network_mode: "host"
-
+  
   ams_backend_app:
     build:
       context: .
