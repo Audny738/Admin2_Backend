@@ -5,8 +5,9 @@ pipeline {
         stage('Construir y desplegar la app') {
             steps {
                 script {
+                	bat 'dir'
                     // Construir la imagen Docker
-                    bat 'docker-compose -f /ams_backend/docker-compose.yml build'
+                    bat 'docker-compose build'
 
                     // Ejecutar el contenedor Docker
                     bat 'docker-compose up -d'
