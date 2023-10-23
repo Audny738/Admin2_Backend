@@ -5,24 +5,14 @@ services:
     image: mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: 123456789
       MYSQL_DATABASE: ams_backend
-    ports:
-      - "3306:3306"
-    networks:
-      - my-network
+    network_mode: "host"
 
   ams_backend_app:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8090:9090"
-    depends_on:
-      - ams_db
-    networks:
-      - my-network
-
-networks:
-  my-network:
-    driver: bridge
+      - "8090:8080"
+    network_mode: "host"
