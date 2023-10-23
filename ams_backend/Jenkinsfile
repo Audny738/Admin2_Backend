@@ -5,13 +5,15 @@ pipeline {
         stage('Construir y desplegar la app') {
             steps {
                 script {
-                	bat 'cd ams_backend'
-                	bat 'dir'
                     // Construir la imagen Docker
-                    bat 'docker-compose build'
-
+                    dir('ams_backend') {
+                    	bat 'docker-compose build'
+                    }
+                    
                     // Ejecutar el contenedor Docker
-                    bat 'docker-compose up -d'
+					dir('ams_backend') {
+                    	bat 'docker-compose up -d'
+                    }  
                 }
             }
         }
