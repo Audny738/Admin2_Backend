@@ -1,6 +1,7 @@
 package com.gate_software.ams_backend.controller;
 
 import com.gate_software.ams_backend.entity.Job;
+import com.gate_software.ams_backend.repository.ControlledUserRepository;
 import com.gate_software.ams_backend.repository.JobRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -24,6 +25,8 @@ public class JobController {
 
     @Autowired
     private JobRepository jobRepository;
+    @Autowired
+    private ControlledUserRepository controlledUserRepository;
 
     @PostMapping("/")
     @Operation(summary = "Create a Job", description = "Create a new job.")
@@ -70,13 +73,18 @@ public class JobController {
     @Parameters({
             @Parameter(name = "jobId", description = "ID of the job to delete", required = true)
     })
-    public ResponseEntity<Void> deleteJob(@PathVariable Integer jobId) {
-        if (jobRepository.existsById(jobId)) {
-            jobRepository.deleteById(jobId);
-            return ResponseEntity.noContent().build();
-        } else {
+    public ResponseEntity<?> deleteJob(@PathVariable Integer jobId) {
+        if (!jobRepository.existsById(jobId)) {
             return ResponseEntity.notFound().build();
         }
+
+        boolean usersExistForJob = controlledUserRepository.existsByJobId(jobId);
+        if (usersExistForJob) {
+            return ResponseEntity.badRequest().body("Can't delete job with assigned users");
+        }
+
+        jobRepository.deleteById(jobId);
+        return ResponseEntity.noContent().build();
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
