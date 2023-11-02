@@ -16,4 +16,6 @@ public interface ControlledUserRepository extends JpaRepository<ControlledUser, 
     Page<ControlledUser> findByIsActiveTrue(Pageable pageable);
 
     List<ControlledUser> findAllByIsActiveTrue();
+
+    boolean existsByJobId(Integer job_id);
 }
