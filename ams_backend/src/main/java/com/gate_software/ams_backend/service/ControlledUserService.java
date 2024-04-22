@@ -129,7 +129,7 @@ public class ControlledUserService {
         newUser.setJob(job);
         String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
         newUser.setPassword(encodedPassword);
-        newUser.setIsActive(userDTO.isActive());
+        newUser.setPresence(userDTO.getPresence());
         newUser.setSalary(userDTO.getSalary());
 
         return newUser;
@@ -173,7 +173,7 @@ public class ControlledUserService {
             existingUser.setPassword(encodedPassword);
         }
 
-        existingUser.setIsActive(userDTO.isActive());
+        existingUser.setPresence(userDTO.getPresence());
         existingUser.setSalary(userDTO.getSalary());
 
         Optional<Job> job = jobRepository.findById(userDTO.getJobId());
@@ -317,7 +317,7 @@ public class ControlledUserService {
         userListDTO.setName(user.getName());
         userListDTO.setEmail(user.getEmail());
         userListDTO.setSalary(user.getSalary());
-        userListDTO.setPresent(verifyIsPresent(user.getId()));
+        userListDTO.setPresence(verifyIsPresent(user.getId()) ? "Presente" : "Ausente");
         int currentDayOfWeek = LocalDate.now().getDayOfWeek().getValue();
         List<Schedule> userSchedules = user.getSchedules();
         if (userSchedules != null && !userSchedules.isEmpty()) {

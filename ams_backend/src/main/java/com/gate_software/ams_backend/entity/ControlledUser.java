@@ -29,8 +29,8 @@ public class ControlledUser {
     @JsonIgnore
     private String password;
 
-    @Column(name = "is_active")
-    private boolean isActive;
+    @Column(name = "presence")
+    private String presence;
 
     @Column
     private float salary;
@@ -52,15 +52,19 @@ public class ControlledUser {
     @JsonIgnore
     private List<CheckOutRecords> checkOutRecords;
 
-    public void setIsActive(boolean isActive) {
-        this.isActive = isActive;
+    public void setPresence(String presence) {
+        this.presence = presence;
     }
 
-    public ControlledUser(String name, String email, String password, boolean isActive, float salary, Job job) {
+    public boolean isActive(){
+        return this.presence.equals("Presente");
+    }
+
+    public ControlledUser(String name, String email, String password, String presence, float salary, Job job) {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.isActive = isActive;
+        this.presence = presence;
         this.salary = salary;
         this.job = job;
     }

@@ -13,6 +13,6 @@ public class ControlledUserListDTO {
     @JsonIgnore
     private JobDTO job;
     private String jobDescription;
-    private boolean present;
+    private String presence;
     private List<String> schedules;
 }

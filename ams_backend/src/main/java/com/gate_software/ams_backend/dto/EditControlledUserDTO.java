@@ -10,7 +10,7 @@ public class EditControlledUserDTO {
     private String name;
     private String email;
     private String password;
-    private boolean active;
+    private String presence;
     private float salary;
     private int jobId;
     private List<EditControllerUseScheduleDTO> schedules;

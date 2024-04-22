@@ -45,7 +45,7 @@ public class ReportsService {
         CheckInOutContainer records;
 
         for(ControlledUser user : controlledUsers){
-            if (!user.isActive()) continue;
+            if (!user.getPresence().equals("Presente")) continue;
             HSSFRow datarow = sheet.createRow(dataRowIndex);
             datarow.createCell(0).setCellValue(user.getName());
             records = controlledUserService.getCheckInOutRecordsForDate(selectedDate, user.getId());
@@ -85,7 +85,7 @@ public class ReportsService {
         HashMap<Integer, String> schedules;
 
         for(ControlledUser user : controlledUsers){
-            if (!user.isActive()) continue;
+            if (!user.getPresence().equals("Presente")) continue;
             HSSFRow datarow = sheet.createRow(dataRowIndex);
             datarow.createCell(0).setCellValue(user.getName());
             datarow.createCell(1).setCellValue(user.getEmail());
@@ -122,7 +122,7 @@ public class ReportsService {
         int dataRowIndex = 1;
 
         for (ControlledUser user : controlledUsers) {
-            if (user.isActive()) {
+            if (user.getPresence().equals("Presente")) {
                 long totalHoursWorked = calculateHoursWorked(user, startDate, endDate);
                 float hourlyRate = user.getSalary();
                 float totalPayment = totalHoursWorked * hourlyRate;

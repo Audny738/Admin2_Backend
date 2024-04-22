@@ -146,7 +146,7 @@ public class ControlledUserController {
 
         if (optionalUser.isPresent()) {
             ControlledUser user = optionalUser.get();
-            user.setIsActive(false);
+            user.setPresence("Ausente");
             controlledUserRepository.save(user);
             return ResponseEntity.ok("User successfully deactivated");
         } else {
